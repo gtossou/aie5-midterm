@@ -1,0 +1,19 @@
+[project]
+name = "aie5-midterm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "chainlit>=2.2.1",
+    "langchain>=0.3.19",
+    "langchain-community>=0.3.18",
+    "langchain-core>=0.3.39",
+    "langchain-openai>=0.3.7",
+    "langchain-qdrant>=0.2.0",
+    "pymupdf4llm>=0.0.17",
+    "python-dotenv>=1.0.1",
+    "qdrant-client>=1.13.2",
+    "tavily-python>=0.5.1",
+    "tiktoken>=0.9.0",
+]
