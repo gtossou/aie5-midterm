@@ -40,3 +40,8 @@ https://github.com/gtossou/aie5-midterm/blob/main/app.py
 My experiments give good results. The collection doenst contains documents that are linked one to another. We are talking about job descriptions. Thats why w helpfulness is not good for a certain typ of questions.
 ut for the questions that requires to dscribe jobs, we have good answers
 ![](capt2.png)
+
+
+# LOOM VIDEO
+
+https://www.loom.com/share/822e744bae724f2ca0a09d6dea4e0b94?sid=dad7fc39-1d86-4b19-965c-a04e262454f0
