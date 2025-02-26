@@ -34,12 +34,11 @@ def get_course_recommendations(jobs_context):
     # Perform Tavily web search
     search_results = tavily_client.search(
         query=search_query,
-        num_results=5,
+        num_results=3,
         search_depth="advanced",
         include_answer="basic",
         include_domains=["COURSERA.ORG"],
     )
-
     # Extract course titles, links, and descriptions
     course_recommendations = []
     for result in search_results.get("results", []):
@@ -71,6 +70,14 @@ async def on_chat_start():
     )
     await msg.send()
 
+    file_path = "report.txt"
+    # Check if file exists before deleting
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} has been deleted.")
+    else:
+        print(f"{file_path} does not exist.")
+
     embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
     embedding_dim = 1536
     client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
@@ -94,8 +101,7 @@ async def on_chat_start():
         [
             (
                 "system",
-                """You are a kind career counselor for tech roles who provides help for career advice. You are here to help the user find the best career path for them.
-                Use the following context to answer accurately:\n\n{retrieved_context}""",
+                """{statement}:\n\n{retrieved_context}""",
             ),
             ("human", "{question}"),
         ]
@@ -295,6 +301,11 @@ async def on_chat_start():
         "problem_solving": problem_value,
         "routine_novelty": routine_novelty_value,
     }
+    with open(file_path, "a") as file:
+        file.write(str("###################################################"))
+        file.write(str("user_answers"))
+        file.write(str(user_answers))
+        file.write(str("###################################################"))
 
     cl.user_session.set("personality_test_results", user_answers)
 
@@ -323,18 +334,35 @@ async def on_chat_start():
         [doc.page_content for doc in persona_search_results]
     )
 
+    with open(file_path, "a") as file:
+        file.write(str("###################################################"))
+        file.write(str("persona_retrieved_context"))
+        file.write(str(persona_retrieved_context))
+        file.write(str("###################################################"))
+
     question = "From the context, explain the 2 personas that suits the user and why.Don't include the jobs related to the persona"
     answer_persona = cl.Message(content="")
     persona_generated_response = ""
+    statement = "You are a helpful assistant that helps people find the right career path based on their preferences."
     # Run the pipeline using the retrieved Runnable
     async for chunk in runnable.astream(
-        {"question": question, "retrieved_context": persona_retrieved_context},
+        {
+            "statement": statement,
+            "question": question,
+            "retrieved_context": persona_retrieved_context,
+        },
         config=RunnableConfig(callbacks=[cl.LangchainCallbackHandler()]),
     ):
         await answer_persona.stream_token(chunk)
         persona_generated_response += chunk
 
     await answer_persona.send()
+
+    with open(file_path, "a") as file:
+        file.write(str("###################################################"))
+        file.write(str("persona_generated_response"))
+        file.write(str(persona_generated_response))
+        file.write(str("###################################################"))
 
     ####################################################################################################
     ##Resume analysis
@@ -360,7 +388,7 @@ async def on_chat_start():
     loader = PyMuPDFLoader(file.path)
     resume_embeddings = loader.load()
 
-    resume_vector_db = QdrantVectorStore.from_documents(
+    _ = QdrantVectorStore.from_documents(
         documents=resume_embeddings,
         embedding=embedding_model,
         collection_name=RESUME_COLLECTION_NAME,
@@ -383,17 +411,34 @@ async def on_chat_start():
         [doc.page_content for doc in resume_search_results]
     )
 
+    with open(file_path, "a") as file:
+        file.write(str("###################################################"))
+        file.write(str("resume_retrieved_context"))
+        file.write(str(resume_retrieved_context))
+        file.write(str("###################################################"))
+
     question = "From the context, what are the skills or experiences that can be used in a tech career?"
     answer_resume = cl.Message(content="")
     resume_generated_response = ""
+    statement = "You are a helpful assistant that helps identify transferable skills from a resume."
 
     # Run the pipeline using the retrieved Runnable
     async for chunk in runnable.astream(
-        {"question": question, "retrieved_context": resume_retrieved_context},
+        {
+            "statement": statement,
+            "question": question,
+            "retrieved_context": resume_retrieved_context,
+        },
         config=RunnableConfig(callbacks=[cl.LangchainCallbackHandler()]),
     ):
         await answer_resume.stream_token(chunk)
         resume_generated_response += chunk
+
+    with open(file_path, "a") as file:
+        file.write(str("###################################################"))
+        file.write(str("resume_generated_response"))
+        file.write(str(resume_generated_response))
+        file.write(str("###################################################"))
 
     await answer_resume.send()
     ####################################################################################################
@@ -417,12 +462,21 @@ async def on_chat_start():
         [doc.page_content for doc in jobs_search_results]
     )
 
-    question = "Explain the 2 jobs that suits the user and why"
+    with open(file_path, "a") as file:
+        file.write(str(jobs))
+        file.write(str("jobs_retrieved_context"))
+        file.write(str(jobs_retrieved_context))
+        file.write(str("###################################################"))
+
+    question = "What are the 2 jobs (not personas) that suits the user and why"
     answer_jobs = cl.Message(content="")
     jobs_generated_response = ""
     # Run the pipeline using the retrieved Runnable
+    statement = "You are a helpful assistant that helps identify jobs related to preferences. You provide concise and informative answers based on personas, preferences and transferable skills."
+
     async for chunk in runnable.astream(
         {
+            "statement": statement,
             "question": question,
             "retrieved_context": jobs_retrieved_context
             + " "
@@ -434,6 +488,12 @@ async def on_chat_start():
     ):
         await answer_jobs.stream_token(chunk)
         jobs_generated_response += chunk
+
+    with open(file_path, "a") as file:
+        file.write(str("###################################################"))
+        file.write(str("jobs_generated_response"))
+        file.write(str(jobs_generated_response))
+        file.write(str("###################################################"))
 
     await answer_jobs.send()
 
@@ -454,6 +514,12 @@ async def on_chat_start():
         will_recommend_value = will_recommend.get("payload", {}).get("value")
         if will_recommend_value == "oui":
             course_recommendations = get_course_recommendations(jobs)
+
+            with open(file_path, "a") as file:
+                file.write(str("###################################################"))
+                file.write(str("course_recommendations"))
+                file.write(str(str(course_recommendations)))
+                file.write(str("###################################################"))
             if course_recommendations:
                 await cl.Message(
                     content="Voici quelques spécialisations Coursera qui pourraient vous intéresser :"
