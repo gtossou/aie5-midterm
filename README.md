@@ -46,7 +46,7 @@ https://github.com/gtossou/aie5-midterm/blob/main/app.py
 Link to ragas evaluation
 https://github.com/gtossou/aie5-midterm/blob/main/ragas_evaluation.ipynb
 
-![](ragas evaluation.png)
+![](ragas_evaluation.png)
 
 My experiments give good results. The collection doenst contains documents that are linked one to another. We are talking about job descriptions. Thats why w helpfulness is not good for a certain typ of questions.
 ut for the questions that requires to dscribe jobs, we have good answers
