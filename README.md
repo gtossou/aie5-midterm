@@ -14,15 +14,36 @@ Career counselor is a chatbot that  will ask the user some information about his
 I'm going to use 
 
     1. LLM
-    2. Embedding Model
-    3. Orchestration
-    4. Vector Database
-    5. Monitoring
-    6. Evaluation
-    7. User Interface
+        Tools:
+        - OpenAI : LLM model
 
-Tools:
-    - Tavily search : To make searches regarding courses, bootcamp and government programs
+    2. Embedding Model
+        Tools:
+        - Vector embedding : OpenAIEmbeddings(text-embedding-3-small) - Embedding vector of size 1536
+
+    3. Orchestration
+        Tools:
+        - Langchain :  LangChain is a software framework that helps facilitate the integration of large language models (LLMs) into applications.
+
+    4. Vector Database
+        Tools:
+        - Qdrant cloud: Open source vector database
+
+    5. Monitoring
+        Tools:
+        - LangSmith: LangSmith provides a seamless experience for every stage of the LLM application lifecycle, from prototyping to deployment, and supports various workflows including tracing, evaluation, and monitoring.
+
+    6. Evaluation
+        Tools:
+        - Ragas: Ragas is a library that provides tools to supercharge the evaluation of Large Language Model (LLM)         applications. It is designed to help you evaluate your LLM applications with ease and confidence
+        - Langsmith 
+
+    7. User Interface
+        Tools:
+        - Chainlit: Chainlit is an open-source Python library designed to streamline the creation of chatbot applications ready for production.
+
+    Other Tools:
+        - Tavily search : To make searches regarding courses, bootcamp and government programs
 
 # Task 3: Dealing with the Data
 
